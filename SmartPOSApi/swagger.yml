@@ -1,0 +1,167 @@
+openapi: 3.0.0
+info:
+  title: "SmartPOS REST API"
+  description: "This is an API for integration with SmartPOS"
+  version: "1.0.0"
+
+servers:
+  - url: "/api"
+
+components:
+  schemas:
+    Invoice:
+      type: "object"
+      required:
+        - client_id
+      properties:
+        client_id:
+          type: "string"
+        customername:
+          type: "string"
+        customeraddress:
+          type: "string"
+        totalqty:
+          type: "integer"
+        totalamount:
+          type: "number"
+        totaltax:
+          type: "number"
+  parameters:
+    client_id:
+      name: "client_id"
+      description: "id of the registered pos client"
+      in: path
+      required: True
+      schema:
+        type: "string"
+    invoice_id:
+      name: "invoice_id"
+      description: "ID of the invoice itself"
+      in: path
+      required: true
+      schema:
+        type: "integer"
+    invoicedetail_id:
+      name: "invoicedetail_id"
+      description: "ID of the invoice deltail line"
+      in: path
+      required: true
+      schema:
+        type: "integer"
+
+paths:
+  /invoice:
+    post:
+      operationId: "invoice.create"
+      tags:
+        - Invoice
+      summary: "Create an invoice"
+      requestBody:
+          description: "Invoice to create"
+          required: True
+          content:
+            application/json:
+              schema:
+                x-body-name: "invoice"
+                $ref: "#/components/schemas/Invoice"
+      responses:
+        "201":
+          description: "Successfully created invoice"
+  /invoice/all/{client_id}:
+    get:
+      operationId: "invoice.read_all"
+      tags:
+        - "Invoice"
+      summary: "Read the list of invoices of a pos client"
+      parameters:
+        - $ref: "#/components/parameters/client_id"
+      responses:
+        "200":
+          description: "Successfully read invoice list"
+  /invoice/{client_id}/{invoice_id}:
+    get:
+      operationId: "invoice.read_one"
+      tags:
+        - Invoice
+      summary: "Read one invoice of a pos client"
+      parameters:
+        - $ref: "#/components/parameters/client_id"
+        - $ref: "#/components/parameters/invoice_id"
+      responses:
+        "200":
+          description: "Successfully read invoice"
+    delete:
+      tags:
+        - Invoice
+      operationId: "invoice.delete"
+      summary: "Delete an invoice"
+      parameters:
+        - $ref: "#/components/parameters/client_id"
+        - $ref: "#/components/parameters/invoice_id"
+      responses:
+        "204":
+          description: "Successfully deleted invoice"
+  /invoicedetails:
+    post:
+      operationId: "invoicedetails.create"
+      tags:
+        - InvoiceDetails
+      summary: "Create a invoice detail associated with an invoice"
+      requestBody:
+          description: "Invoice detail to create"
+          required: True
+          content:
+            application/json:
+              schema:
+                x-body-name: "invoicedetail"
+                type: "object"
+                properties:
+                  invoice_id:
+                    type: "integer"
+                  item_id:
+                    type: "string"
+                  qty:
+                    type: "integer"
+                  price:
+                    type: "number"
+                  discount:
+                    type: "number"
+                  taxrate:
+                    type: "number"
+                  amount:
+                    type: "number"
+      responses:
+        "201":
+          description: "Successfully created a invoice detail"
+  /invoicedetails/all/{invoice_id}:
+    get:
+      operationId: "invoicedetails.read_all"
+      tags:
+        - InvoiceDetails
+      summary: "Read all invoice detail for a single invoice"
+      parameters:
+        - $ref: "#/components/parameters/invoice_id"
+      responses:
+        "200":
+          description: "Successfully read invoice detail"
+  /invoicedetails/{invoicedetail_id}:
+    get:
+      operationId: "invoicedetails.read_one"
+      tags:
+        - InvoiceDetails
+      summary: "Read one invoice detail"
+      parameters:
+        - $ref: "#/components/parameters/invoicedetail_id"
+      responses:
+        "200":
+          description: "Successfully read one invoice detail"
+    delete:
+      tags:
+        - InvoiceDetails
+      operationId: "invoicedetails.delete"
+      summary: "Delete an invoice detail"
+      parameters:
+        - $ref: "#/components/parameters/invoicedetail_id"
+      responses:
+        "204":
+          description: "Successfully deleted invoice detail"
